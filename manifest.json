@@ -1,0 +1,46 @@
+{
+  "name": "AEO-REX AI Visibility Workspace",
+  "short_name": "AEO-REX",
+  "description": "UK's First AEO Agency. Build your complete AI search visibility — schema, content, citations, and competitor strategy generated for you.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#06090f",
+  "theme_color": "#5bc8f5",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en-GB",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "label": "AEO-REX Workspace Dashboard"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Full AI Audit",
+      "short_name": "Audit",
+      "description": "Run your complete AI visibility audit",
+      "url": "/?module=0"
+    },
+    {
+      "name": "Schema Suite",
+      "short_name": "Schema",
+      "description": "Generate all your schema markup",
+      "url": "/?module=1"
+    },
+    {
+      "name": "Managed Pack",
+      "short_name": "Managed",
+      "description": "Generate monthly client pack",
+      "url": "/?screen=managed"
+    }
+  ]
+}

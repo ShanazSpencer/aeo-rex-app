@@ -1,0 +1,43 @@
+# ═══════════════════════════════════════════════════
+# AEO-REX — netlify.toml
+# Netlify configuration for app.aeo-rex.com
+# ═══════════════════════════════════════════════════
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# Security headers — protects the app
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "microphone=(), camera=(), geolocation=()"
+
+# Cache the app HTML — revalidate on every deploy
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Cache static assets (favicon, audio if separate)
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Redirect www to non-www (optional)
+[[redirects]]
+  from = "https://www.app.aeo-rex.com/*"
+  to = "https://app.aeo-rex.com/:splat"
+  status = 301
+  force = true
+
+# Handle all routes — serve index.html (SPA behaviour)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

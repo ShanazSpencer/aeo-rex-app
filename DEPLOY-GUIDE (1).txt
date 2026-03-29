@@ -1,0 +1,239 @@
+# AEO-REX — Complete Deploy Guide
+# app.aeo-rex.com · Netlify + GitHub + PWA
+# ═══════════════════════════════════════════════
+
+## WHAT YOU'RE DEPLOYING
+
+A full AI Visibility Workspace at app.aeo-rex.com with:
+- 7 agent modules powered by Shanaz AI
+- Website Audit agent
+- Managed client pack generator
+- PWA install (works like a native app on phones)
+- AEO-Rex theme tune
+- Secure API proxy (your API key is hidden)
+
+Files in this folder:
+  index.html                        ← The entire app
+  manifest.json                     ← PWA config (app icon, name, theme)
+  sw.js                             ← Service worker (offline + install)
+  favicon.svg                       ← App icon
+  netlify.toml                      ← Netlify settings
+  netlify/functions/claude.js       ← Secure API proxy function
+
+---
+
+## STEP 1 — GET YOUR ANTHROPIC API KEY (5 minutes)
+
+1. Go to: https://console.anthropic.com
+2. Click "Sign Up" — use your email
+3. Verify your email
+4. Go to "API Keys" in the left menu
+5. Click "Create Key"
+6. Name it: "AEO-REX App"
+7. COPY the key immediately — it starts with sk-ant-api03-
+   (You can only see it once — paste it somewhere safe)
+8. Go to "Billing" → Add a card
+   (Pay as you go — each "Generate" click costs roughly £0.003)
+
+---
+
+## STEP 2 — CREATE YOUR GITHUB REPO (5 minutes)
+
+1. Go to: https://github.com
+2. Click the + button top right → "New repository"
+3. Repository name: aeo-rex-app
+4. Set to: Public
+5. Do NOT tick "Add README" — leave everything blank
+6. Click "Create repository"
+
+Now upload the files:
+
+7. Click "uploading an existing file" (link on the empty repo page)
+8. Drag ALL these files into the upload area:
+   - index.html
+   - manifest.json
+   - sw.js
+   - favicon.svg
+   - netlify.toml
+
+9. For the Netlify function, you need to create the folder structure:
+   - Click "Create new file" 
+   - In the filename box type: netlify/functions/claude.js
+     (typing the slashes creates the folders automatically)
+   - Copy and paste the contents of netlify/functions/claude.js into the editor
+
+10. Commit message: "AEO-Rex app v1 — initial deploy"
+11. Click "Commit changes"
+
+---
+
+## STEP 3 — DEPLOY ON NETLIFY (5 minutes)
+
+1. Go to: https://app.netlify.com
+2. Click "Add new site" → "Import an existing project"
+3. Click "GitHub"
+4. Authorise Netlify to access GitHub if asked
+5. Find and click "aeo-rex-app" in your repo list
+6. Build settings — leave everything BLANK:
+   - Build command: (empty)
+   - Publish directory: (empty)
+7. Click "Deploy site"
+
+Netlify will give your site a random name like "sparkly-llama-abc123.netlify.app"
+That's fine — you'll add your real domain next.
+
+---
+
+## STEP 4 — ADD YOUR API KEY TO NETLIFY (2 minutes)
+
+This is the critical security step — your API key lives here, not in the code.
+
+1. In your Netlify site dashboard, go to:
+   Site configuration → Environment variables
+2. Click "Add a variable"
+3. Key: ANTHROPIC_API_KEY
+4. Value: paste your sk-ant-api03-xxxxx key here
+5. Scopes: leave as "All scopes"
+6. Click "Create variable"
+7. Go to Deploys → Click "Trigger deploy" → "Deploy site"
+   (Environment variables only take effect after a fresh deploy)
+
+---
+
+## STEP 5 — ADD YOUR CUSTOM DOMAIN (10 minutes)
+
+1. In Netlify, go to: Domain management → Add custom domain
+2. Type: app.aeo-rex.com
+3. Click "Add domain" → "Add domain" again to confirm
+
+Netlify will say "Check DNS configuration" — follow these steps:
+
+4. Log into wherever your domain DNS is managed
+   (Check your emails from when you bought aeo-rex.com — 
+    usually Namecheap, GoDaddy, Cloudflare, or 123-reg)
+
+5. Find "DNS Settings" or "Manage DNS"
+
+6. Add a new record:
+   Type:  CNAME
+   Host:  app
+   Value: your-netlify-url.netlify.app  (the random URL from Step 3)
+   TTL:   3600 (or Auto)
+
+7. Save the record
+
+8. Back in Netlify, click "Verify DNS configuration"
+   (This can take 5-30 minutes to propagate)
+
+9. Once verified, Netlify auto-provisions SSL (the padlock)
+   Your app is now live at https://app.aeo-rex.com 🎉
+
+---
+
+## STEP 6 — TEST EVERYTHING (5 minutes)
+
+Open https://app.aeo-rex.com and check:
+
+[ ] Page loads with the floating onboarding screen
+[ ] AEO-Rex theme tune plays after clicking "Enter the Workspace"
+[ ] Your logo appears in the sidebar
+[ ] Enter your name and click "Enter the Workspace"
+[ ] Navigate to Module 1 → Full AI Audit
+[ ] Fill in the first form fields
+[ ] Click "Generate" — output should stream in within 5-10 seconds
+[ ] Try "Run All Agents" on Module 1
+[ ] Check Asset Library shows saved outputs
+[ ] Test Managed Pack Generator
+
+If Generate buttons return errors:
+→ Check Step 4 — API key environment variable
+→ Make sure you redeployed after adding the key
+→ Check Netlify Functions tab for error logs
+
+---
+
+## STEP 7 — TEST THE PWA INSTALL
+
+On your iPhone:
+1. Open https://app.aeo-rex.com in Safari
+2. Tap the Share button (box with arrow)
+3. Scroll down → "Add to Home Screen"
+4. Tap "Add"
+5. AEO-REX now appears on your home screen like a native app
+
+On Android:
+1. Open https://app.aeo-rex.com in Chrome
+2. Tap the three dots menu
+3. Tap "Add to Home Screen" or "Install app"
+
+On desktop (Chrome):
+1. Look for the install icon in the address bar (right side)
+2. Click it → "Install"
+
+---
+
+## MAKING UPDATES
+
+Every time you update the app:
+
+1. Download the new index.html from Claude
+2. Go to your GitHub repo (github.com/yourusername/aeo-rex-app)
+3. Click on index.html → click the pencil edit icon
+4. Select all text → paste the new content
+5. Commit with message: "App update — [brief description]"
+6. Netlify auto-deploys within 60 seconds
+
+---
+
+## COSTS
+
+Netlify:        Free tier — more than enough for launch
+GitHub:         Free (public repo)
+Anthropic API:  ~£0.003 per "Generate" click
+                ~£0.06 per user completing all 7 modules
+                At 100 active Growth subscribers: ~£6/month in API fees
+
+Your revenue:
+  5 Growth users (£49/mo):    £245/mo
+  5 Managed clients (£597/mo): £2,985/mo
+  API costs at that scale:     ~£15/mo
+  Net margin:                  ~99%
+
+---
+
+## FOLDER STRUCTURE IN GITHUB
+
+aeo-rex-app/
+  ├── index.html              ← The app
+  ├── manifest.json           ← PWA config
+  ├── sw.js                   ← Service worker
+  ├── favicon.svg             ← App icon
+  ├── netlify.toml            ← Netlify config
+  └── netlify/
+      └── functions/
+          └── claude.js       ← Secure API proxy
+
+---
+
+## IF ANYTHING GOES WRONG
+
+Netlify deploy failed:
+→ Check the "Deploys" tab for the error log
+→ Usually a syntax issue in netlify.toml — delete and re-upload
+
+API not working (500 error):
+→ Netlify site → Functions tab → click "claude" → check logs
+→ 90% of the time it's a missing or incorrect API key
+
+App not loading at custom domain:
+→ DNS takes up to 24 hours in rare cases — just wait
+→ Check the CNAME record is pointing to the right Netlify URL
+
+PWA not installing:
+→ Must be on HTTPS (Netlify handles this automatically)
+→ Must have manifest.json and sw.js in root
+→ Safari on iPhone requires "Add to Home Screen" manually
+
+---
+
+Questions? hello@aeo-rex.com · aeo-rex.com · Birmingham, UK
