@@ -493,9 +493,9 @@ body::before{
 
 .to-content{
   padding:.9rem 1.05rem;
-  font-size:.8rem;color:var(--text);line-height:1.78;
-  white-space:pre-wrap;word-break:break-word;
-  max-height:400px;overflow-y:auto;
+  font-size:.82rem;color:var(--text);line-height:1.78;
+  max-height:500px;overflow-y:auto;
+  word-break:break-word;
 }
 .to-content.code{font-family:'Courier New',monospace;font-size:.73rem;color:var(--green);}
 .to-content::-webkit-scrollbar{width:3px;}
@@ -727,6 +727,81 @@ body::before{
   -webkit-text-fill-color:transparent;
   background-clip:text;
 }
+
+
+/* ═══ MARKDOWN REPORT STYLES ═══ */
+.md-h2{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;
+  color:var(--white);margin:1.5rem 0 .6rem;padding-bottom:.45rem;
+  border-bottom:2px solid var(--cyan);letter-spacing:-.01em;
+}
+.md-h3{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;
+  color:var(--cyan);margin:1.1rem 0 .4rem;
+  text-decoration:underline;text-underline-offset:3px;
+}
+.md-h4{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;
+  color:var(--cyan2);margin:.85rem 0 .32rem;
+}
+.md-bold{color:var(--white);font-weight:700;}
+.md-em{color:var(--cyan2);font-style:italic;}
+.md-hr{border:none;border-top:1px solid var(--b1);margin:1.25rem 0;}
+.md-score{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;
+  color:var(--cyan);
+}
+.md-fix-label{color:var(--green);font-weight:600;}
+.md-gap{margin:.5rem 0;}
+.md-code{
+  background:rgba(6,9,15,.85);border:1px solid var(--b2);border-radius:8px;
+  padding:.85rem 1rem;margin:.65rem 0;
+  font-family:'Courier New',monospace;font-size:.74rem;
+  color:var(--green);line-height:1.72;white-space:pre-wrap;overflow-x:auto;
+}
+.md-inline-code{
+  background:rgba(91,200,245,.08);border:1px solid var(--b1);border-radius:4px;
+  padding:.1rem .4rem;font-family:'Courier New',monospace;
+  font-size:.78rem;color:var(--green);
+}
+.md-table-wrap{overflow-x:auto;margin:.75rem 0;}
+.md-table{width:100%;border-collapse:collapse;background:rgba(11,17,32,.6);border-radius:8px;overflow:hidden;}
+.md-th{
+  padding:.5rem .75rem;text-align:left;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:.72rem;
+  color:var(--cyan);border-bottom:1px solid var(--b1);
+  letter-spacing:.05em;text-transform:uppercase;
+}
+.md-td{
+  padding:.45rem .75rem;border-bottom:1px solid var(--b2);
+  font-size:.79rem;color:var(--dim);line-height:1.5;
+}
+.md-td-first{color:var(--text);font-weight:500;}
+.md-li-num{
+  display:flex;gap:.75rem;align-items:flex-start;
+  margin:.45rem 0;font-size:.82rem;color:var(--text);line-height:1.65;
+}
+.md-li-num-badge{
+  min-width:22px;height:22px;border-radius:50%;
+  background:var(--cd);color:var(--cyan);
+  font-family:'Syne',sans-serif;font-weight:800;font-size:.68rem;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;
+}
+.md-li-bullet{
+  display:flex;gap:.65rem;align-items:flex-start;
+  margin:.38rem 0;font-size:.82rem;color:var(--text);line-height:1.65;
+}
+.md-bullet-arrow{color:var(--cyan);margin-top:.22rem;flex-shrink:0;}
+.md-badge{
+  display:inline-block;font-size:.62rem;font-weight:700;
+  padding:.15rem .48rem;border-radius:4px;
+  letter-spacing:.05em;vertical-align:middle;margin:0 .2rem;
+}
+.md-badge-high{background:var(--gd);color:var(--green);}
+.md-badge-med{background:var(--ad);color:var(--amber);}
+.md-badge-low{background:var(--cd);color:var(--cyan);}
+.md-badge-crit{background:var(--rd);color:var(--red);}
 
 </style>
 </head>
@@ -2307,7 +2382,7 @@ async function runTask(mi,ti){
       body.appendChild(outDiv);
 
       // Stream
-      streamText(`out_${mi}_${ti}`,result);
+      streamText(`out_${mi}_${ti}`, result, true);
 
       // Add mark done button
       setTimeout(()=>{
@@ -2388,92 +2463,112 @@ function updateModProgress(mi){
 async function runWebsiteAudit(){
   const url=document.getElementById("auditUrl")?.value?.trim();
   if(!url){showToast("Enter your website URL first","#f5a623");return;}
+
+  // Basic URL validation
+  let cleanUrl = url;
+  if(!cleanUrl.startsWith("http://")&&!cleanUrl.startsWith("https://")){
+    cleanUrl = "https://"+cleanUrl;
+  }
+
   navTo("audit");
   const el=document.getElementById("auditContent");
+
+  // Loading state
   el.innerHTML=`<div style="background:var(--card);border:1px solid var(--b1);border-radius:14px;padding:2rem;">
     <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;">
-      <div style="width:36px;height:36px;border-radius:50%;background:var(--pd);border:2px solid var(--purple);display:flex;align-items:center;justify-content:center;font-size:.9rem;animation:spin 1s linear infinite;">⟳</div>
+      <div style="width:40px;height:40px;border-radius:50%;background:var(--pd);border:2px solid var(--purple);
+        display:flex;align-items:center;justify-content:center;font-size:.95rem;
+        animation:spin 1s linear infinite;">⟳</div>
       <div>
-        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;">Analysing ${url}</div>
-        <div style="font-size:.78rem;color:var(--dim);">Shanaz is analysing your website structure, schema, content, and conversion flow...</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;">
+          Reading ${cleanUrl}</div>
+        <div style="font-size:.78rem;color:var(--dim);margin-top:.2rem;">
+          Fetching your website then running the full AEO audit...</div>
       </div>
     </div>
-    <div style="background:var(--s1);border-radius:8px;padding:.85rem;font-size:.78rem;color:var(--dim);line-height:1.65;">
-      Running checks: Schema validation · Voice readiness · AI citation gaps · Content structure · Conversion optimisation · Competitor positioning...
+    <div style="background:var(--s1);border-radius:8px;padding:.85rem;
+      font-size:.78rem;color:var(--dim);line-height:1.75;">
+      Step 1: Fetching your live website content...<br>
+      Step 2: Analysing schema markup, content structure, voice readiness...<br>
+      Step 3: Generating your personalised fix list and 30-day plan...
     </div>
   </div>`;
 
-  const prompt=`You are a senior AEO (Answer Engine Optimisation) specialist. Conduct a comprehensive AI Visibility Audit of this UK website.
-
-Website URL: ${url}
-Business: ${S.biz||"UK SME"} (${S.type||"business"})
-
-Note: You cannot actually access the URL in this context, but generate the most useful audit possible based on common issues for ${S.type||"UK SME"} websites, referencing the URL provided. Be specific and actionable.
-
-## WEBSITE AI VISIBILITY AUDIT ${url}
-
-### Overall AI Readiness Score: [X]/100
-
-### Schema Audit
-List 5 specific schema issues this type of business website typically has:
-1. [Issue] Impact: [High/Med/Low] Fix: [specific code or action]
-(5 issues with fixes)
-
-### AI Content Structure Audit
-5 specific content gaps that prevent AI from citing this type of website:
-1. [Issue] Impact: [H/M/L] Fix: [specific content action]
-
-### Voice Search Readiness
-5 specific voice search issues and fixes for ${S.type||"this type of"} website:
-1. [Issue] Fix: [specific action]
-
-### Google Lens / Visual Search
-3 image optimisation issues and fixes:
-1. [Issue] Fix: [specific file naming/alt text/schema action]
-
-### Conversion Optimisation for AI Traffic
-3 specific changes to convert AI referred visitors better:
-1. [Change] Expected impact: [X% conversion improvement]
-
-### Technical AEO Issues
-5 technical issues preventing AI from reading/citing this site:
-1. [Issue] Priority: [1-5] Fix: [specific technical action]
-
-### Your Prioritised Fix List (by ROI)
-| # | Fix | Impact | Time | Difficulty |
-|---|-----|--------|------|------------|
-[10 rows ranked by impact ÷ time]
-
-### 30-Day Implementation Plan
-Week 1: [specific tasks]
-Week 2: [specific tasks]
-Week 3: [specific tasks]
-Week 4: [specific tasks]
-
-### Predicted Score After 30 Days: [X]/100`;
-
   try{
-    const result=await callClaude(prompt);
+    // Call the dedicated audit function which fetches the site first
+    const res = await fetch("/.netlify/functions/audit", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        url: cleanUrl,
+        biz: S.biz||"UK SME",
+        type: S.type||"business"
+      })
+    });
+
+    const data = await res.json();
+
+    if(!res.ok){
+      throw new Error(data.error||"Audit request failed");
+    }
+
+    if(!data.content||!data.content[0]||!data.content[0].text){
+      throw new Error("No audit content returned");
+    }
+
+    const result = data.content[0].text;
+    const fetchMethod = data.fetchMethod||"unknown";
+
     S.assets["audit_report"]=result;
     updateAssetCount();
-    el.innerHTML=`<div class="task-output">
-      <div class="to-header">
-        <span class="to-label">Website Audit ${url}</span>
-        <div class="to-actions">
-          <button class="to-btn" onclick="copyText(S.assets['audit_report'])">Copy Full Report</button>
+
+    // Show fetch method notice
+    const methodNotice = fetchMethod==="live"
+      ? `<div style="background:var(--gd);border:1px solid rgba(31,212,160,.25);border-radius:8px;
+          padding:.6rem 1rem;font-size:.76rem;color:var(--green);margin-bottom:.85rem;
+          display:flex;align-items:center;gap:.5rem;">
+          <span>✓</span> Live audit — Shanaz read your actual website content
+         </div>`
+      : `<div style="background:var(--ad);border:1px solid rgba(245,166,35,.25);border-radius:8px;
+          padding:.6rem 1rem;font-size:.76rem;color:var(--amber);margin-bottom:.85rem;
+          display:flex;align-items:center;gap:.5rem;">
+          <span>⚠</span> Your site blocked direct access — audit based on URL and business type patterns.
+          Still highly accurate for ${S.type||"your sector"}.
+         </div>`;
+
+    el.innerHTML=`
+      ${methodNotice}
+      <div class="task-output">
+        <div class="to-header">
+          <span class="to-label">Website Audit — ${cleanUrl}</span>
+          <div class="to-actions">
+            <button class="to-btn" onclick="copyText(S.assets['audit_report'])">Copy Report</button>
+          </div>
         </div>
-      </div>
-      <div class="to-content" id="auditOutputContent"></div>
-    </div>`;
-    streamText("auditOutputContent",result);
+        <div class="to-content" id="auditOutputContent"></div>
+      </div>`;
+
+    streamText("auditOutputContent", result, true);
     showToast("Website audit complete ✓");
+
   }catch(err){
-    el.innerHTML=`<div style="color:var(--red);padding:1rem;">Audit failed check your connection and try again.</div>`;
-    showToast("Audit failed","var(--red)");
+    console.error("Audit error:", err);
+    el.innerHTML=`
+      <div style="background:var(--rd);border:1px solid rgba(240,80,110,.25);
+        border-radius:12px;padding:1.5rem;text-align:center;">
+        <div style="font-size:1.5rem;margin-bottom:.65rem;">⚠</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:.4rem;">
+          Audit failed</div>
+        <p style="font-size:.82rem;color:var(--text);line-height:1.6;margin-bottom:1rem;">
+          ${err.message||"Connection error"}.<br>
+          Check your URL is correct and try again.
+        </p>
+        <button class="btn btn-primary btn-sm" onclick="runWebsiteAudit()">Try Again</button>
+      </div>`;
+    showToast("Audit failed — check URL and try again","var(--red)");
   }
 }
 
-/* ═══ MANAGED PACK ═══ */
 async function generateClientPack(){
   const biz=document.getElementById("cpg_biz")?.value?.trim();
   const type=document.getElementById("cpg_type")?.value?.trim();
@@ -2551,7 +2646,7 @@ On track for target of [95]/100 by: [date]
       </div>
       <div class="to-content" id="cpg_out_content"></div>
     </div>`;
-    streamText("cpg_out_content",result);
+    streamText("cpg_out_content", result, true);
     showToast("Monthly pack generated review and personalise before sending 📦");
   }catch(err){
     showToast("Generation failed","var(--red)");
@@ -2613,6 +2708,103 @@ function updateAssetCount(){
   if(el)el.textContent=count;
 }
 
+
+/* ═══ MARKDOWN TO HTML RENDERER ═══ */
+function renderMarkdown(md){
+  if(!md) return '';
+  function escH(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+  var t = md;
+
+  // Code blocks first (before other replacements)
+  t = t.replace(/```[\w]*\n?([\s\S]*?)```/g, function(m, code){
+    return '<div class="md-code">'+escH(code.trim())+'</div>';
+  });
+
+  // Inline code
+  t = t.replace(/`([^`\n]+)`/g, function(m, code){
+    return '<code class="md-inline-code">'+escH(code)+'</code>';
+  });
+
+  // H2 headings
+  t = t.replace(/^## (.+)$/gm, function(m, txt){
+    return '<h2 class="md-h2">'+txt+'</h2>';
+  });
+
+  // H3 headings
+  t = t.replace(/^### (.+)$/gm, function(m, txt){
+    return '<h3 class="md-h3">'+txt+'</h3>';
+  });
+
+  // H4 headings
+  t = t.replace(/^#### (.+)$/gm, function(m, txt){
+    return '<h4 class="md-h4">'+txt+'</h4>';
+  });
+
+  // Bold italic
+  t = t.replace(/\*\*\*(.+?)\*\*\*/g, '<strong class="md-bold"><em>$1</em></strong>');
+
+  // Bold
+  t = t.replace(/\*\*(.+?)\*\*/g, '<strong class="md-bold">$1</strong>');
+
+  // Italic
+  t = t.replace(/\*(.+?)\*/g, '<em class="md-em">$1</em>');
+
+  // Horizontal rule
+  t = t.replace(/^---+$/gm, '<hr class="md-hr">');
+
+  // Tables
+  t = t.replace(/(\|.+\|\n)([\|\-: ]+\|\n)((?:\|.+\|\n?)+)/gm, function(match){
+    var rows = match.trim().split('\n');
+    var headers = rows[0].split('|').filter(function(c){ return c.trim(); });
+    var dataRows = rows.slice(2);
+    var thead = '<tr>' + headers.map(function(h){
+      return '<th class="md-th">'+h.trim()+'</th>';
+    }).join('') + '</tr>';
+    var tbody = dataRows.map(function(row){
+      var cells = row.split('|').filter(function(c){ return c.trim(); });
+      return '<tr>' + cells.map(function(c, i){
+        return '<td class="md-td'+(i===0?' md-td-first':'')+'">'+c.trim()+'</td>';
+      }).join('') + '</tr>';
+    }).join('');
+    return '<div class="md-table-wrap"><table class="md-table"><thead>'+thead+'</thead><tbody>'+tbody+'</tbody></table></div>';
+  });
+
+  // Numbered lists
+  t = t.replace(/^(\d+)\. (.+)$/gm, function(m, num, text){
+    return '<div class="md-li-num"><span class="md-li-num-badge">'+num+'</span><span>'+text+'</span></div>';
+  });
+
+  // Bullet lists
+  t = t.replace(/^[-•] (.+)$/gm, function(m, text){
+    return '<div class="md-li-bullet"><span class="md-bullet-arrow">▸</span><span>'+text+'</span></div>';
+  });
+
+  // Score highlights X/100
+  t = t.replace(/(\d+)\/100/g, '<strong class="md-score">$1/100</strong>');
+
+  // Impact badges
+  t = t.replace(/\bImpact: High\b/gi, '<span class="md-badge md-badge-high">HIGH IMPACT</span>');
+  t = t.replace(/\bImpact: Medium\b/gi, '<span class="md-badge md-badge-med">MED IMPACT</span>');
+  t = t.replace(/\bImpact: Low\b/gi, '<span class="md-badge md-badge-low">LOW IMPACT</span>');
+
+  // Priority badges
+  t = t.replace(/Priority: 5/g, '<span class="md-badge md-badge-crit">CRITICAL</span>');
+  t = t.replace(/Priority: 4/g, '<span class="md-badge md-badge-high">HIGH</span>');
+  t = t.replace(/Priority: 3/g, '<span class="md-badge md-badge-med">MEDIUM</span>');
+  t = t.replace(/Priority: [12]/g, '<span class="md-badge md-badge-low">LOW</span>');
+
+  // Fix tag
+  t = t.replace(/\bFix: /g, '<span class="md-fix-label">Fix: </span>');
+
+  // Double newline = paragraph gap
+  t = t.replace(/\n\n/g, '<div class="md-gap"></div>');
+
+  // Single newline = line break
+  t = t.replace(/\n/g, '<br>');
+
+  return t;
+}
+
 /* ═══ UTILS ═══ */
 async function callClaude(prompt){
   const res=await fetch("/.netlify/functions/claude",{
@@ -2630,9 +2822,20 @@ async function callClaude(prompt){
   throw new Error("No response");
 }
 
-function streamText(elId,text){
+function streamText(elId,text,useMarkdown){
   const el=document.getElementById(elId);
   if(!el)return;
+  // For markdown content, show loading then render all at once
+  // (streaming raw markdown looks messy mid-render)
+  if(useMarkdown){
+    el.innerHTML='<span style="color:var(--dim);font-size:.8rem;">Preparing report...</span>';
+    setTimeout(()=>{
+      el.innerHTML=renderMarkdown(text);
+      el.scrollTop=0;
+    },400);
+    return;
+  }
+  // Plain text — stream character by character
   el.innerHTML='<span class="cursor"></span>';
   let i=0;
   const interval=setInterval(()=>{
